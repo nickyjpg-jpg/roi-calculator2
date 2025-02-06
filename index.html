@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeitview ROI Calculator for Large Retail Owners</title>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Urbanist', sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .custom-costs {
+      display: none;
+      margin-top: 20px;
+    }
+    .multi-fields {
+      display: none;
+      margin-top: 20px;
+    }
+    .tooltip {
+      text-decoration: underline;
+      color: blue;
+      cursor: pointer;
+    }
+    .tooltip-content {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+    .list {
+      text-align: left;
+      display: inline-block;
+      margin: auto;
+    }
+    header img {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Zeitview_color_black (1).svg" alt="Zeitview Logo">
+  </header>
+  <h1>Zeitview ROI Calculator for Large Retail Owners</h1>
+
+  <label for="num-properties">Number of Properties:</label>
+  <input id="num-properties" type="number" placeholder="e.g., 500" />
+
+  <div class="centered">
+    <label for="inspection-type">Inspection Type:</label>
+    <span>Full Property Inspection</span>
+    <span class="tooltip" onclick="toggleTooltip()">(What's included?)</span>
+  </div>
+
+  <div class="tooltip-content" id="tooltip-content">
+    <p><strong>Included in Full Property Inspection (average traditional inspection costs from industry surveys):</strong></p>
+    <ul class="list">
+      <li>Roof (RGB/Thermal): $6,000</li>
+      <li>Facade (RGB/Thermal): $2,500</li>
+      <li>Landscaping: $500</li>
+      <li>Pavement: $2,000</li>
+    </ul>
+  </div>
+
+  <label for="inspection-frequency">Inspection Frequency:</label>
+  <select id="inspection-frequency">
+    <option value="1">Annually</option>
+    <option value="4">Quarterly</option>
+    <option value="12">Monthly</option>
+  </select>
+
+  <div>
+    <label for="use-custom-costs">Use Custom Full Property Inspection Cost:</label>
+    <input type="checkbox" id="use-custom-costs" onclick="toggleCustomCosts()">
+  </div>
+
+  <div class="custom-costs" id="custom-costs">
+    <label for="custom-traditional-cost">Traditional Cost per Property:</label>
+    <input id="custom-traditional-cost" type="number" placeholder="e.g., 7000" />
+  </div>
+
+  <div>
+    <label for="use-multi-fields">OR Enter Costs for Each Component:</label>
+    <input type="checkbox" id="use-multi-fields" onclick="toggleMultiFields()">
+  </div>
+
+  <div class="multi-fields" id="multi-fields">
+    <label for="custom-roof-rgb">Roof (RGB):</label>
+    <input id="custom-roof-rgb" type="number" placeholder="e.g., 6000" /><br>
+
+    <label for="custom-roof-thermal">Roof (Thermal):</label>
+    <input id="custom-roof-thermal" type="number" placeholder="e.g., 6000" /><br>
+
+    <label for="custom-facade-rgb">Facade (RGB):</label>
+    <input id="custom-facade-rgb" type="number" placeholder="e.g., 2500" /><br>
+
+    <label for="custom-facade-thermal">Facade (Thermal):</label>
+    <input id="custom-facade-thermal" type="number" placeholder="e.g., 2500" /><br>
+
+    <label for="custom-landscaping">Landscaping:</label>
+    <input id="custom-landscaping" type="number" placeholder="e.g., 500" /><br>
+
+    <label for="custom-pavement">Pavement:</label>
+    <input id="custom-pavement" type="number" placeholder="e.g., 2000" />
+  </div>
+
+  <button onclick="calculateROI()">Calculate ROI</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function toggleTooltip() {
+      const tooltipContent = document.getElementById("tooltip-content");
+      tooltipContent.style.display = tooltipContent.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleCustomCosts() {
+      const customCostsDiv = document.getElementById("custom-costs");
+      const useCustomCosts = document.getElementById("use-custom-costs").checked;
+      customCostsDiv.style.display = useCustomCosts ? "block" : "none";
+    }
+
+    function toggleMultiFields() {
+      const multiFieldsDiv = document.getElementById("multi-fields");
+      const useMultiFields = document.getElementById("use-multi-fields").checked;
+      multiFieldsDiv.style.display = useMultiFields ? "block" : "none";
+    }
+
+    function calculateROI() {
+      const numProperties = parseInt(document.getElementById("num-properties").value);
+      const frequency = parseInt(document.getElementById("inspection-frequency").value);
+      const useCustomCosts = document.getElementById("use-custom-costs").checked;
+      const useMultiFields = document.getElementById("use-multi-fields").checked;
+
+      if (isNaN(numProperties) || numProperties <= 0) {
+        document.getElementById("result").innerText = "Please enter a valid number of properties.";
+        return;
+      }
+
+      let traditionalCostPerProperty = 11000; // Updated total for RGB/Thermal combined
+      let zeitviewCostPerProperty = 2500; // Fixed Zeitview cost
+
+      if (useCustomCosts) {
+        traditionalCostPerProperty = parseFloat(document.getElementById("custom-traditional-cost").value);
+
+        if (isNaN(traditionalCostPerProperty) || traditionalCostPerProperty <= 0) {
+          document.getElementById("result").innerText = "Please enter a valid custom cost.";
+          return;
+        }
+      }
+
+      if (useMultiFields) {
+        const roofRGB = parseFloat(document.getElementById("custom-roof-rgb").value) || 0;
+        const roofThermal = parseFloat(document.getElementById("custom-roof-thermal").value) || 0;
+        const facadeRGB = parseFloat(document.getElementById("custom-facade-rgb").value) || 0;
+        const facadeThermal = parseFloat(document.getElementById("custom-facade-thermal").value) || 0;
+        const landscapingCost = parseFloat(document.getElementById("custom-landscaping").value) || 0;
+        const pavementCost = parseFloat(document.getElementById("custom-pavement").value) || 0;
+
+        traditionalCostPerProperty = roofRGB + roofThermal + facadeRGB + facadeThermal + landscapingCost + pavementCost;
+
+        if (traditionalCostPerProperty <= 0) {
+          document.getElementById("result").innerText = "Please enter valid component costs.";
+          return;
+        }
+      }
+
+      const totalTraditionalCost = traditionalCostPerProperty * numProperties * frequency;
+      const totalZeitviewCost = zeitviewCostPerProperty * numProperties * frequency;
+      const totalSavings = totalTraditionalCost - totalZeitviewCost;
+
+      document.getElementById("result").innerHTML = `
+        <p>Traditional Inspection Cost: $${totalTraditionalCost.toLocaleString()}</p>
+        <p>Zeitview Cost: $${totalZeitviewCost.toLocaleString()}</p>
+        <p>Total Savings: $${totalSavings.toLocaleString()}</p>
+        <p>Savings Per Property: $${(totalSavings / numProperties).toLocaleString()}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
